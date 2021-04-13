@@ -1,7 +1,7 @@
 import pygame
 
 class Block:
-    def __init__(self,x=0,y=0,h=60,dir="RIGHT"):
+    def __init__(self,x=0,y=0,h=50,dir="RIGHT"):
         self.block = pygame.Surface((h, h))
         self.block.fill((0, 0, 0))
         self.pre_direction = dir

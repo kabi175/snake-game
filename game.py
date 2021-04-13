@@ -2,45 +2,61 @@ import pygame
 import time 
 from pygame.locals import *
 from snake import Snake
+from apple import Apple
 
 
 class Game:
-    def __init__(self):
+    def __init__(self,w=1000,h=500):
         pygame.init()
-        self.s_height = 500
-        self.s_width = 1000
+        self.s_width = w
+        self.s_height = h
+        self.crashed = False
+        self.speed = 10
+        self.clock = pygame.time.Clock()
         self.screen = pygame.display.set_mode([self.s_width,self.s_height])
+        self.snake = Snake(self.screen)
+        self.apple = Apple(self.screen)
+        self.score = 0
     
     def run(self):
-        self.x,self.y = 0,0
-        snake = Snake()
+        pygame.display.set_caption('Snake')
         self.screen.fill((255, 255, 255))
         pygame.display.flip()
-        while True:
-            time.sleep(0.2)
+        while not self.crashed:
+            self.handle_event(self.snake)
             self.screen.fill((255, 255, 255))
-            snake.move(self.screen)
+            self.snake.move()            
+            if self.apple.show(self.snake.snake[0]):
+                self.score += 1
+                self.snake.grow()
+
             pygame.display.flip()
-            if self.update_event(snake) == True:
-                pygame.quit()
-                break
+
+            if self.snake.is_dashed():
+                self.game_over()
+            self.clock.tick(self.speed)
+
+        pygame.quit()
     
-    def update_event(self,snake):
+    def handle_event(self,snake):
         for event in pygame.event.get():
             if event.type == KEYDOWN:
                 if event.key == K_ESCAPE:
-                    return True
+                    self.crashed = True
                 elif event.key == K_RIGHT:
                     snake.turn_right()
                 elif event.key == K_LEFT:
                     snake.turn_left()
-                elif event.key == K_UP:
-                    snake.grow()
             elif event.type == QUIT:
-                return True
-        return False
+                self.crashed = True
     
     def welcome(self):
         pass
+
     def game_over(self):
-        pass
+        self.screen.fill((0,0,0))
+        pygame.display.flip()
+        time.sleep(1)
+        print("score",self.score)
+        print("game over")
+        self.crashed = True
